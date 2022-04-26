@@ -28,13 +28,13 @@ const productSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        required: [true, "Enter the product category"],
+        // required: [true, "Enter the product category"],
         trim: true
     },
     stock: {
         type: Number,
-        required: [true, "Enter the product category"],
-        maxlength: [4, "stock Should have max 4 chars"],
+        // required: [true, "Enter the product category"],
+        // maxlength: [4, "stock Should have max 4 chars"],
         default: 1
 
     },
@@ -42,22 +42,22 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    reviews: [
-        {
-            name: {
-                type: String,
-                required: true
-            },
-            ratings: {
-                type: Number,
-                required: true
-            },
-            comment: {
-                type: String,
-                required: true
-            }
-        }
-    ]
+    // reviews: [
+    //     {
+    //         name: {
+    //             type: String,
+    //             required: true
+    //         },
+    //         ratings: {
+    //             type: Number,
+    //             required: true
+    //         },
+    //         comment: {
+    //             type: String,
+    //             required: true
+    //         }
+    //     }
+    // ]
 
 
 }, { timestamps: true })
