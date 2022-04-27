@@ -70,3 +70,27 @@ const sendToken = async (user, statusCode, res) => {
         })
 
 }
+
+
+//logout user
+exports.logout = async (req, res) => {
+    try {
+
+        res.cookie("token", null, {
+            expires: new Date(Date.now()),
+            httpOnly: true
+        })
+
+        res.status(200).json({
+            success: true,
+            data: "Logged Out"
+        })
+
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({
+            success: true,
+            data: "Logged Out failed"
+        })
+    }
+}
