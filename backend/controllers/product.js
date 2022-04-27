@@ -1,6 +1,8 @@
 const Product = require('../models/product')
 
 
+
+
 //Admin
 //create Product
 exports.createProduct = async (req, res, next) => {
@@ -27,7 +29,7 @@ exports.getProducts = async (req, res, next) => {
         const products = await Product.find({});
         res.json({
             success: true,
-            products
+            data: products
         })
     } catch (err) {
         console.log(err);
@@ -45,6 +47,11 @@ exports.getProduct = async (req, res, next) => {
 
     try {
         const product = await Product.findById({ _id: req.params.id })
+        if (!product) {
+            return res.statuts(404).json({
+                success: false,
+            })
+        }
         res.json({
             success: true,
             data: product

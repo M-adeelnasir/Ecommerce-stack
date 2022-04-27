@@ -10,6 +10,7 @@ const connectDB = require('./config/db')
 dotenv.config({ path: './config/config.env' })
 
 
+
 connectDB()
 const PORT = process.env.PORT || 5000;
 app.use(cors());
