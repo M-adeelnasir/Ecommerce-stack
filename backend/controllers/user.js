@@ -10,11 +10,17 @@ exports.register = async (req, res) => {
 
         const token = await user.getJwtToken()
 
-        res.status(201).json({
-            success: true,
-            data: user,
-            token: token
-        })
+        const options = {
+            expires: new Date(Date.now() + process.env.JWT_TOKEN_COOKIE_EXPIRES * 24 * 12 * 60 * 1000),
+            httpOnly: true
+        }
+        res.status(201)
+            .cookie('token', token, options)
+            .json({
+                success: true,
+                data: user,
+                token: token
+            })
     } catch (err) {
         console.log(err);
         res.status(400).json({
@@ -31,22 +37,31 @@ exports.login = async (req, res) => {
         const { email, password } = req.body;
 
         const user = await User.findOne({ email }).select("+password")
-
+        if (!user) {
+            return res.status(400).json({
+                data: "Invalid Credentials"
+            })
+        }
         const match = await user.matchPassword(password);
-
-        const token = await user.getJwtToken()
 
         if (!match) {
             return res.status(400).json({
                 success: false,
-                data: "invalid Email or Password",
+                data: "Email or Password does not match",
             })
         }
 
-        res.status(200).json({
-            success: true,
-            token: token
-        })
+        const token = await user.getJwtToken()
+        const options = {
+            expires: new Date(Date.now() + process.env.JWT_TOKEN_COOKIE_EXPIRES * 24 * 12 * 60 * 1000),
+            httpOnly: true
+        }
+        res.status(200)
+            .cookie('token', token, options)
+            .json({
+                success: true,
+                token: token
+            })
 
     } catch (err) {
         console.log(err);
