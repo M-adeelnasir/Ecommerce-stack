@@ -8,19 +8,7 @@ exports.register = async (req, res) => {
 
         const user = await User.create({ name, email, password })
 
-        const token = await user.getJwtToken()
-
-        const options = {
-            expires: new Date(Date.now() + process.env.JWT_TOKEN_COOKIE_EXPIRES * 24 * 12 * 60 * 1000),
-            httpOnly: true
-        }
-        res.status(201)
-            .cookie('token', token, options)
-            .json({
-                success: true,
-                data: user,
-                token: token
-            })
+        sendToken(user, 201, res)
     } catch (err) {
         console.log(err);
         res.status(400).json({
@@ -51,17 +39,7 @@ exports.login = async (req, res) => {
             })
         }
 
-        const token = await user.getJwtToken()
-        const options = {
-            expires: new Date(Date.now() + process.env.JWT_TOKEN_COOKIE_EXPIRES * 24 * 12 * 60 * 1000),
-            httpOnly: true
-        }
-        res.status(200)
-            .cookie('token', token, options)
-            .json({
-                success: true,
-                token: token
-            })
+        sendToken(user, 200, res)
 
     } catch (err) {
         console.log(err);
@@ -70,4 +48,25 @@ exports.login = async (req, res) => {
             data: err.message
         })
     }
+}
+
+
+//jwt token
+
+const sendToken = async (user, statusCode, res) => {
+    const token = await user.getJwtToken();
+
+    const options = {
+        expires: new Date(Date.now() + process.env.JWT_TOKEN_COOKIE_EXPIRES * 24 * 12 * 60 * 1000),
+        httpOnly: true
+    }
+
+    res.status(statusCode)
+        .cookie("token", token, options)
+        .json({
+            success: true,
+            token: token,
+            data: user
+        })
+
 }
