@@ -31,12 +31,21 @@ const userSchema = new mongoose.Schema({
     passwordResetLink: {
         type: String,
         default: ""
+    },
+    avatar: {
+        public_id: {
+            type: String
+        },
+        public_url: {
+            type: String
+        }
+
     }
 
 }, { timestamps: true })
 
 
-userSchema.save('pre', async function (next) {
+userSchema.pre('save', async function (next) {
 
     if (!this.isModified('password')) {
         next()
@@ -46,7 +55,7 @@ userSchema.save('pre', async function (next) {
 })
 
 
-userSchema.methods.comparePassword = async function (enteredPassword) {
+userSchema.methods.matchPassword = async function (enteredPassword) {
     return bcrypt.compare(enteredPassword, this.password)
 }
 
