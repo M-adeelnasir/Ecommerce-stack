@@ -24,7 +24,6 @@ router.put('/me/update/profile', requireSignin, checkAuth, updateProfile)
 
 router.get('/admin/allusers', requireSignin, checkAuth, checkAdmin, getAllusers)
 router.get('/admin/getUser/:userId', requireSignin, checkAuth, checkAdmin, getUser)
-
 router.put('/admin/update/user/:userId', requireSignin, checkAuth, checkAdmin, updaterUserRole)
 router.delete('/admin/delete/user/:userId', requireSignin, checkAuth, checkAdmin, deletUser)
 

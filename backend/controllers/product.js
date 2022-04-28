@@ -117,5 +117,63 @@ exports.deleteProduct = async (req, res, next) => {
         })
     }
 
+}
+
+
+
+
+//add review
+exports.addReview = async (req, res) => {
+
+    try {
+        const { comment, rating, productId, name } = req.body;
+
+        const postedBy = req.user.id
+
+
+        const review = {
+            comment,
+            rating: Number(rating),
+            postedBy,
+            name
+        }
+
+        let product = await Product.findById({ _id: productId })
+
+        const isReviewed = await product.reviews.find(rev => rev.postedBy.toString() === postedBy.toString())
+
+        if (isReviewed) {
+            product.reviews.forEach(rev => {
+                if (rev.postedBy.toString() === postedBy.toString()) {
+
+                    rev.rating = rating
+                    rev.comment = comment
+                }
+            })
+
+
+        } else {
+            product.reviews.push(review);
+            product.numberOfReviews = product.reviews.length
+        }
+
+        let total = 0
+        product.ratings = product.reviews.forEach(rev => {
+            total += rev
+        }) / product.reviews.length
+
+
+        const p = await product.save({ validateBeforeSave: false })
+
+        res.json({
+            success: true,
+            data: p
+        })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Server error"
+        })
+    }
 
 }

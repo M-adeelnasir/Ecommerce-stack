@@ -21,7 +21,6 @@ const productSchema = new mongoose.Schema({
     },
     ratings: {
         type: Number,
-        required: [true, "price Is required"],
         default: 0
     },
     images: {
@@ -44,11 +43,15 @@ const productSchema = new mongoose.Schema({
     },
     reviews: [
         {
+            postedBy: {
+                type: ObjectId,
+                ref: 'User'
+            },
             name: {
                 type: String,
                 required: true
             },
-            ratings: {
+            rating: {
                 type: Number,
                 required: true
             },
