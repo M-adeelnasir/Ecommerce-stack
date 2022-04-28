@@ -5,6 +5,8 @@ const router = express.Router();
 const { deleteProduct, getProduct, getProducts, createProduct, updateProduct } = require('../controllers/product')
 
 const { checkAuth, requireSignin, checkAdmin } = require('../middleware/auth')
+
+
 router.post('/product/create', requireSignin, checkAuth, checkAdmin, createProduct);
 router.get('/product/:id', getProduct);
 router.get('/products', getProducts);

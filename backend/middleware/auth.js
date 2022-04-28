@@ -1,8 +1,6 @@
 const { body } = require('express-validator');
 var expressjwt = require("express-jwt");
 
-
-
 const User = require('../models/user')
 
 
@@ -92,3 +90,5 @@ exports.checkAdmin = async (req, res, next) => {
     }
 
 }
+
+

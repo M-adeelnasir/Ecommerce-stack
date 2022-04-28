@@ -1,5 +1,6 @@
 const User = require('../models/user')
-
+const jwt = require('jsonwebtoken');
+const sendEmail = require('../middleware/sendEmail')
 
 exports.register = async (req, res) => {
     const { email, password, name } = req.body;
@@ -91,6 +92,62 @@ exports.logout = async (req, res) => {
         res.status(400).json({
             success: true,
             data: "Logged Out failed"
+        })
+    }
+}
+
+
+
+
+//FORGOT PASSWORD
+exports.forgetPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email })
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                data: `No user found with ${email} Email`
+            })
+        }
+
+        const token = jwt.sign({ name: user.name }, process.env.JWT_SECRET, { expiresIn: '10m' })
+
+
+        const resetLink = `${process.env.CLIENT_URL}/auth/forgot/password/${token}`
+
+        const message = `Your password reset token is : \n\n ${resetLink} \n\n  click to reset password`
+
+        try {
+
+            await sendEmail({
+                email: user.email,
+                subject: "Ecommerce stack",
+                message
+            })
+
+            return res.status(200).json({
+                success: true,
+                message: `Email send to ${user.email}`,
+
+            })
+
+        } catch (error) {
+            console.log(error);
+            return res.status(400).json({
+                success: false,
+                data: "Email sent failed"
+            })
+        }
+
+
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            success: false,
+            data: "Server Error"
         })
     }
 }

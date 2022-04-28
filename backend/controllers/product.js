@@ -1,10 +1,15 @@
 const Product = require('../models/product')
-
+const User = require('../models/user')
 
 //Admin
 //create Product
 exports.createProduct = async (req, res, next) => {
     try {
+        const userId = req.user.id
+        // console.log(req.profile);
+        console.log(userId);
+        req.body.postedBy = userId
+
         const product = await Product.create(req.body)
         res.status(201).json({
             success: true,
