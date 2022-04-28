@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 //routes
-const { register, login, logout, forgetPassword, resetPassword, getCurrentUser, updatePassword } = require('../controllers/user')
+const { register, login, logout, forgetPassword, resetPassword, getCurrentUser, updatePassword, updateProfile } = require('../controllers/user')
 
 //middleware
 const { chechLoginValidation, chechRegisterValidation, resetPasswordValidation, requireSignin } = require('../middleware/auth')
@@ -18,5 +18,6 @@ router.put('/password/forgot/:restPasswordLink', resetPasswordValidation, runVal
 
 router.get('/me', requireSignin, getCurrentUser)
 router.put('/me/updatePassword', requireSignin, updatePassword)
+router.put('/me/update/profile', requireSignin, updateProfile)
 
 module.exports = router

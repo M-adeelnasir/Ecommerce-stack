@@ -287,5 +287,18 @@ exports.updatePassword = async (req, res) => {
         sendToken(user, 200, res)
     })
 
+}
 
+//update user Profile
+
+exports.updateProfile = async (req, res) => {
+    const { email, name } = req.body
+
+    const userId = req.user.id;
+    const user = await User.findByIdAndUpdate({ _id: userId }, { email, name }, { new: true, runValidators: true })
+
+    res.json({
+        success: true,
+        message: "Update Succesfully"
+    })
 }
