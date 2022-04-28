@@ -1,6 +1,7 @@
 const User = require('../models/user')
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../middleware/sendEmail')
+const _ = require('lodash')
 
 exports.register = async (req, res) => {
     const { email, password, name } = req.body;
@@ -150,3 +151,69 @@ exports.forgetPassword = (req, res) => {
 
 
 }
+
+
+//reset password submite
+
+exports.resetPassword = async (req, res) => {
+    const { newPassword } = req.body;
+
+    const restPasswordLink = req.params.restPasswordLink
+
+    try {
+        if (!restPasswordLink) {
+            return res.status(400).json({
+                success: false,
+                data: "No link"
+            })
+        }
+
+        try {
+            const token = jwt.verify(restPasswordLink, process.env.JWT_SECRET)
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({
+                success: false,
+                data: "Expired or invalid Link"
+            })
+        }
+
+        let user = await User.findOne({ restPasswordLink })
+        if (!user) {
+            return res.status(400).json({
+                data: "Expired or invalid Link"
+            })
+        }
+
+
+        const updateFields = {
+            password: newPassword,
+            restPasswordLink: ""
+        }
+
+        user = _.extend(user, updateFields)
+
+        user.save((err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).json({
+                    success: false,
+                    data: "Reset password Faild, try later"
+                })
+            }
+            res.status(200).json({
+                success: true,
+                data: "Password Updated Successfully"
+            })
+        })
+
+
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({
+            success: false,
+            data: "Reset password Faild, try later"
+        })
+    }
+}
+
