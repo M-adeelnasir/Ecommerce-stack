@@ -11,8 +11,15 @@ exports.register = async (req, res) => {
         const user = await User.create({ name, email, password })
 
         sendToken(user, 201, res)
+
     } catch (err) {
-        console.log(err);
+        // console.log(err.keyValue.email);
+        if (err.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                data: `${err.keyValue.email} is already exist try with Another`
+            })
+        }
         res.status(400).json({
             success: false,
             data: err.message
@@ -33,6 +40,7 @@ exports.login = async (req, res) => {
             })
         }
         const match = await user.matchPassword(password);
+        console.log(match);
 
         if (!match) {
             return res.status(400).json({
@@ -156,17 +164,27 @@ exports.forgetPassword = (req, res) => {
 //reset password submite
 
 exports.resetPassword = async (req, res) => {
-    const { newPassword } = req.body;
+    const { newPassword, confirmPassword } = req.body;
+
+
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({
+            success: false,
+            data: "New Password and Confirm password doest not match"
+        })
+    }
 
     const restPasswordLink = req.params.restPasswordLink
 
     try {
+
         if (!restPasswordLink) {
             return res.status(400).json({
                 success: false,
                 data: "No link"
             })
         }
+
 
         try {
             const token = jwt.verify(restPasswordLink, process.env.JWT_SECRET)
@@ -188,7 +206,7 @@ exports.resetPassword = async (req, res) => {
 
         const updateFields = {
             password: newPassword,
-            restPasswordLink: ""
+            passwordResetLink: ""
         }
 
         user = _.extend(user, updateFields)
@@ -217,3 +235,57 @@ exports.resetPassword = async (req, res) => {
     }
 }
 
+
+//get signle user
+exports.getCurrentUser = async (req, res) => {
+    console.log(req.user.id);
+    const user = await User.findById({ _id: req.user.id })
+
+    res.json({
+        data: user
+    })
+
+}
+
+
+
+
+exports.updatePassword = async (req, res) => {
+
+    const { oldPassword, confirmPassword, newPassword } = req.body
+
+    // console.log(req.user.id);
+    let user = await User.findById({ _id: req.user.id }).select("+password")
+
+    const isMatch = await user.matchPassword(oldPassword)
+    if (!isMatch) {
+        return res.status(400).json({
+            success: false,
+            data: "Invalid Old Password"
+        })
+    }
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({
+            success: false,
+            data: "New Password and Confirm Password does not match"
+        })
+    }
+
+    const updateFields = {
+        password: newPassword
+    }
+
+    user = _.extend(user, updateFields)
+    user.save((err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(400).json({
+                success: false,
+                data: "Reset password Faild, try later"
+            })
+        }
+        sendToken(user, 200, res)
+    })
+
+
+}

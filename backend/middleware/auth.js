@@ -28,6 +28,16 @@ exports.chechLoginValidation = [
 ]
 
 
+exports.resetPasswordValidation = [
+    body("newPassword")
+        .isLength({ min: 6 })
+        .withMessage("Password Should be more then 6 chars"),
+    body("confirmPassword")
+        .isLength({ min: 6 })
+        .withMessage("Password Should be more then 6 chars")
+]
+
+
 
 //check if the user have the token 
 exports.requireSignin = expressjwt({ secret: process.env.JWT_SECRET, algorithms: ['sha1', 'RS256', 'HS256'] })
