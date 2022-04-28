@@ -292,13 +292,122 @@ exports.updatePassword = async (req, res) => {
 //update user Profile
 
 exports.updateProfile = async (req, res) => {
-    const { email, name } = req.body
+    try {
+        const { email, name } = req.body
 
-    const userId = req.user.id;
-    const user = await User.findByIdAndUpdate({ _id: userId }, { email, name }, { new: true, runValidators: true })
+        const userId = req.user.id;
+        const user = await User.findByIdAndUpdate({ _id: userId }, { email, name }, { new: true, runValidators: true })
+        if (!user) {
+            return res.status(404).json({
+                message: `user does not found with the ${req.params.userId} id`
+            })
+        }
+        res.json({
+            success: true,
+            message: "Update Succesfully"
+        })
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "sever error"
+        })
+    }
+}
 
+
+
+
+
+
+
+
+//get all users
+//admin
+exports.getAllusers = async (req, res) => {
+    const users = await User.find({})
     res.json({
-        success: true,
-        message: "Update Succesfully"
+        users,
+        count: users.length
     })
+}
+
+
+//admin
+//get single  user
+
+exports.getUser = async (req, res) => {
+
+    try {
+        const user = await User.findById({ _id: req.params.userId })
+
+        if (!user) {
+            return res.status(404).json({
+                message: `user does not found with the ${req.params.userId} id`
+            })
+        }
+
+        res.json({
+            success: true,
+            user
+        })
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "sever error"
+        })
+    }
+}
+
+//admin
+//update user role
+exports.updaterUserRole = async (req, res) => {
+    try {
+        const { role } = req.body;
+
+        const user = await User.findByIdAndUpdate({ _id: req.params.userId }, { role }, { new: true, runValidators: true })
+
+        if (!user) {
+            return res.status(404).json({
+                message: `user does not found with the ${req.params.userId} id`
+            })
+        }
+
+
+        res.json({
+            user,
+            message: "User updated successful"
+        })
+
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "sever error"
+        })
+    }
+}
+
+//admin
+//delete user
+
+exports.deletUser = async (req, res) => {
+    try {
+
+        const user = await User.findByIdAndDelete({ _id: req.params.userId })
+        if (!user) {
+            return res.status(404).json({
+                message: `user does not found with the ${req.params.userId} id`
+            })
+        }
+        res.json({
+            data: {},
+            message: "User Deleted Successfull",
+            success: true
+        })
+
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: "sever error"
+        })
+    }
 }

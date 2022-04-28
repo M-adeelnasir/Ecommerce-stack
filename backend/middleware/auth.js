@@ -95,7 +95,7 @@ exports.checkAdmin = async (req, res, next) => {
         console.log(err);
         res.status(404).json({
             success: false,
-            data: "User Not found"
+            data: "This user is not an admin"
         })
     }
 
