@@ -100,12 +100,12 @@ exports.logout = async (req, res) => {
 
 
 //FORGOT PASSWORD
-exports.forgetPassword = async (req, res) => {
-    try {
-        const { email } = req.body;
+exports.forgetPassword = (req, res) => {
 
-        const user = await User.findOne({ email })
-        if (!user) {
+    const { email } = req.body;
+
+    User.findOne({ email }).exec((err, user) => {
+        if (!user || err) {
             return res.status(404).json({
                 success: false,
                 data: `No user found with ${email} Email`
@@ -113,41 +113,40 @@ exports.forgetPassword = async (req, res) => {
         }
 
         const token = jwt.sign({ name: user.name }, process.env.JWT_SECRET, { expiresIn: '10m' })
-
-
         const resetLink = `${process.env.CLIENT_URL}/auth/forgot/password/${token}`
-
         const message = `Your password reset token is : \n\n ${resetLink} \n\n  click to reset password`
 
-        try {
+        user.updateOne({ passwordResetLink: token }, (err, success) => {
 
-            await sendEmail({
+            if (err) {
+                return res.status(404).json({
+                    success: false,
+                    data: "Reset passoward Failed"
+                })
+            }
+
+            sendEmail({
                 email: user.email,
                 subject: "Ecommerce stack",
                 message
+            }).then((d) => {
+                console.log(d);
+                return res.status(200).json({
+                    Success: true,
+                    token: token,
+                    data: `Email has been sent to ${email}`
+
+                })
+            }).catch((err) => {
+                console.log(err);
+                res.status(400).json({
+                    success: false,
+                    data: "Email sent failed try again with a Valid email"
+                })
             })
 
-            return res.status(200).json({
-                success: true,
-                message: `Email send to ${user.email}`,
-
-            })
-
-        } catch (error) {
-            console.log(error);
-            return res.status(400).json({
-                success: false,
-                data: "Email sent failed"
-            })
-        }
-
-
-
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({
-            success: false,
-            data: "Server Error"
         })
-    }
+    })
+
+
 }
