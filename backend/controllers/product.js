@@ -158,9 +158,12 @@ exports.addReview = async (req, res) => {
         }
 
         let total = 0
-        product.ratings = product.reviews.forEach(rev => {
-            total += rev
-        }) / product.reviews.length
+        product.reviews.forEach(rev => {
+            total += rev.rating
+        })
+        product.ratings = total / product.reviews.length
+
+        console.log(product.ratings);
 
 
         const p = await product.save({ validateBeforeSave: false })
@@ -174,6 +177,74 @@ exports.addReview = async (req, res) => {
         res.status(500).json({
             message: "Server error"
         })
+    }
+
+}
+
+//get all reviews of a product
+exports.getReviews = async (req, res) => {
+    try {
+        const { productId } = req.body
+        console.log(productId);
+        const product = await Product.findById({ _id: productId })
+
+        if (!product) {
+            return res.statuts(404).json({
+                success: false,
+                message: "Invalid Product id"
+            })
+        }
+        res.json({
+            success: true,
+            data: product.reviews,
+        })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Server error"
+        })
+    }
+}
+
+
+//delete reviews
+exports.deletReview = async (req, res) => {
+    try {
+        const { productId, reviewId } = req.body;
+
+        const product = await Product.findById({ _id: productId })
+        if (!product) {
+            return res.statuts(404).json({
+                success: false,
+                message: "Invalid Product id"
+            })
+        }
+
+        const reviews = await product.reviews.filter((rev) => rev._id.toString() !== reviewId.toString())
+
+
+        let total = 0
+        reviews.forEach(rev => {
+            total += rev.rating
+        })
+
+        const ratings = total / product.reviews.length;
+
+        const numberOfReviews = reviews.length;
+        console.log(numberOfReviews);
+
+        await Product.findByIdAndUpdate({ _id: productId }, { reviews, ratings, numberOfReviews }, { runValidators: true, new: true })
+
+        res.json({
+            success: true,
+            message: "Review deleted"
+        })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Server error"
+        })
+
     }
 
 }

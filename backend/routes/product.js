@@ -2,7 +2,7 @@ const express = require('express');
 const app = require('../app');
 const router = express.Router();
 
-const { deleteProduct, getProduct, getProducts, createProduct, updateProduct, addReview } = require('../controllers/product')
+const { deleteProduct, getProduct, getProducts, createProduct, updateProduct, addReview, getReviews, deletReview } = require('../controllers/product')
 
 const { checkAuth, requireSignin, checkAdmin } = require('../middleware/auth')
 
@@ -14,5 +14,7 @@ router.put('/product/update/:id', requireSignin, checkAuth, checkAdmin, updatePr
 router.delete('/product/delete/:id', requireSignin, checkAuth, checkAdmin, deleteProduct)
 
 router.put('/product/review', requireSignin, addReview)
+router.get('/reviews/product', getReviews)
+router.delete('/product/review/delete', requireSignin, checkAuth, deletReview)
 
 module.exports = router
