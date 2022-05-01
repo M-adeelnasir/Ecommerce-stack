@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
             required: true
         },
 
-        contry: {
+        country: {
             type: String,
             default: "pakistan"
         },
@@ -60,7 +60,8 @@ const orderSchema = new mongoose.Schema({
     ],
     postedBy: {
         type: ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
 
     paymentInfo: {
@@ -75,9 +76,8 @@ const orderSchema = new mongoose.Schema({
     },
     paidAt: {
         type: Date,
-        required: true
     },
-    item: {
+    items: {
         type: Number,
         required: true,
         default: 0
@@ -99,7 +99,7 @@ const orderSchema = new mongoose.Schema({
     },
     orderStatus: {
         type: String,
-        enum: ["processing,not procesed yet, complete, pending, canceled"],
+        // enum: ["processing,not procesed yet, complete, pending, canceled"],
         default: 'complete'
     },
     deliverdAt: Date,
